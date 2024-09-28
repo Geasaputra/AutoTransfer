@@ -25,7 +25,7 @@ async function chooseFile() {
     console.log(chalk.red('Pilihan tidak valid.'));
   }
   
-  rl.close(); // Tutup readline setelah pilihan dibuat
+  rl.close(); 
 }
 
 chooseFile();
