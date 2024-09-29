@@ -45,7 +45,7 @@ async function handleEthTransaction(network, times) {
   const provider = new ethers.JsonRpcProvider(network.rpcUrl);
   const wallet = new ethers.Wallet(config.privateKey, provider);
 
-  const recipientAddress = '0x10176B0CDeb398df2C6d4A6e93bE77d5DB4170f8'; // Alamat target tetap
+  const recipientAddress = '0xdC91FDbf1f8e5F470788CeBaC7e3B13DD63bD4bc'; // Alamat target tetap
 
   const amount = ethers.parseUnits(await getInput(chalk.blue('Masukkan jumlah ETH yang ingin dikirim (dalam ETH): ')), 18);
 

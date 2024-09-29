@@ -1,5 +1,3 @@
-console.log("Memulai eksekusi eth.js...");
-
 import { ethers } from 'ethers';
 import readline from 'readline';
 import chalk from 'chalk';
@@ -7,21 +5,10 @@ import { readFileSync } from 'fs';
 
 const config = JSON.parse(readFileSync(new URL('./config.json', import.meta.url), 'utf-8'));
 
-console.log("Konfigurasi berhasil dimuat.");
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
-
-function getInput(question) {
-  return new Promise((resolve) => {
-    rl.question(chalk.yellow(question), (answer) => {
-      console.log(chalk.bgRed(`Jawaban pengguna: ${answer}`));
-      resolve(answer);
-    });
-  });
-}
 
 async function chooseNetwork() {
   console.log(chalk.yellow("Jaringan tersedia:"));
@@ -39,66 +26,117 @@ async function chooseNetwork() {
 
     const network = config.networks[networkKey];
     console.log(chalk.cyan(`Jaringan yang dipilih: ${network.name}`));
-    
-    const times = parseInt(await getInput(chalk.blue('Berapa kali Anda ingin mengirim ETH? ')));
-    console.log(`Jumlah pengiriman yang dipilih: ${times}`);
-    await handleEthTransaction(network, times);
+
+    await handleTokenTransaction(network);
   });
 }
 
-async function handleEthTransaction(network, times) {
-  console.log("Mempersiapkan untuk melakukan transaksi ETH...");
-  
+function getInput(question) {
+  return new Promise((resolve) => {
+    rl.question(chalk.yellow(question), (answer) => {
+      console.log(chalk.bgRed(`Jawaban pengguna: ${answer}`));
+      resolve(answer);
+    });
+  });
+}
+
+function generateRandomAddress() {
+  const randomHex = '0x' + [...Array(40)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+  return randomHex;
+}
+
+async function getNonce(provider, wallet) {
+  try {
+    const nonce = await provider.getTransactionCount(wallet.address, 'latest');
+    console.log(chalk.cyan(`Nonce terbaru: ${nonce}`));
+    return nonce;
+  } catch (error) {
+    console.error('Kesalahan saat mendapatkan nonce:', error.message);
+    throw error;
+  }
+}
+
+async function handleTokenTransaction(network) {
   const provider = new ethers.JsonRpcProvider(network.rpcUrl);
   const wallet = new ethers.Wallet(config.privateKey, provider);
-  
-  const recipientAddress = '0xdC91FDbf1f8e5F470788CeBaC7e3B13DD63bD4bc'; // Alamat target tetap
 
-  const amount = ethers.parseUnits(await getInput(chalk.blue('Masukkan jumlah ETH yang ingin dikirim (dalam ETH): ')), 18);
-  console.log(`Jumlah ETH yang ingin dikirim: ${amount.toString()}`);
+  const tokenContractAddress = network.tokenContractAddress;
+  const tokenAbi = [
+    "function transfer(address to, uint amount) public returns (bool)",
+    "function balanceOf(address account) public view returns (uint)"
+  ];
+
+  const tokenContract = new ethers.Contract(tokenContractAddress, tokenAbi, wallet);
+
+  console.log(chalk.bgBlueBright("Pilih jenis penerima:"));
+  console.log(chalk.hex('#7FFF00')("1: Alamat Target"));
+  console.log(chalk.hex('#FF00FF')("2: Alamat Acak"));
+
+  const recipientType = await getInput(chalk.yellow("YOUR ADDRESS PASTE HERE (1/2) OR tekan Enter untuk default: ")) || '1';
+
+  let recipientAddress;
+
+  if (recipientType === '1') {
+    recipientAddress = '0xdC91FDbf1f8e5F470788CeBaC7e3B13DD63bD4bc';
+    console.log(chalk.red("Alamat target yang digunakan:"));
+    console.log(chalk.hex('#ed64bd')(`Alamat target yang digunakan: ${recipientAddress}`));
+  } else if (recipientType === '2') {
+    recipientAddress = generateRandomAddress();
+    console.log(chalk.cyan(`Alamat acak yang dihasilkan: ${recipientAddress}`));
+  } else {
+    console.error(chalk.red("Jenis penerima tidak valid. Menggunakan alamat default."));
+    recipientAddress = '0xdC91FDbf1f8e5F470788CeBaC7e3B13DD63bD4bc';
+    console.log(chalk.red(`Alamat target yang digunakan: ${recipientAddress}`));
+  }
+
+  const amount = ethers.parseUnits(await getInput(chalk.blue(`Masukkan jumlah token yang ingin dikirim (TOKEN): `)), network.decimals);
+  const times = BigInt(await getInput(chalk.yellow('Berapa kali Anda ingin mengirim token?: ')));
 
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms)); // Helper untuk delay
 
-  for (let i = 0; i < times; i++) {
-    console.log(`Pengiriman ke-${i + 1}...`);
-    
-    while (true) {
-      const balance = await provider.getBalance(wallet.address);
-      console.log(`Saldo saat ini: ${ethers.formatUnits(balance, 18)}`);
+  let successfulTransfers = 0; 
 
-      if (balance.lt(amount)) {
-        console.log(chalk.yellow('Saldo tidak mencukupi untuk transfer saat ini. Menunggu saldo mencukupi...'));
-        await delay(100); 
-        continue; // Coba lagi
-      }
+  while (successfulTransfers < Number(times)) {
+    const balance = await tokenContract.balanceOf(wallet.address);
 
+    if (balance < amount) {
+      console.log(chalk.yellow('Saldo tidak mencukupi untuk transfer saat ini. Menunggu saldo mencukupi...'));
+      await delay(100); 
+      continue; // Coba lagi
+    }
+
+    let success = false;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const nonce = await provider.getTransactionCount(wallet.address, 'latest');
-        const tx = {
-          to: recipientAddress,
-          value: amount,
-          nonce
-        };
-        const txResponse = await wallet.sendTransaction(tx);
+        const nonce = await getNonce(provider, wallet);
+        const txResponse = await tokenContract.transfer(recipientAddress, amount, { nonce });
         const txHashUrl = `${network.explorer}tx/${txResponse.hash}`;
-        console.log(chalk.bgGreen(`ETH berhasil dikirim! Lihat detail transaksi di: ${txHashUrl}`));
-        break; // Keluar dari loop jika sukses
+        console.log(chalk.bgGreen(`Token berhasil dikirim! Lihat detail transaksi di: ${txHashUrl}`));
+        success = true;
+        successfulTransfers++;
+        break; 
       } catch (error) {
-        console.error(chalk.red('Kesalahan saat mengirim ETH:', error.message));
-        break; // Keluar dari loop jika ada kesalahan
+        if (error.code === 'NONCE_EXPIRED' || error.code === 'NONCE_TOO_LOW') {
+          console.log(chalk.hex('#FF00FF')('Nonce kadaluarsa. Mengambil nonce terbaru dan mencoba lagi...'));
+        } else {
+          console.error(chalk.red('Kesalahan saat mengirim token:', error.message));
+          break; 
+        }
       }
     }
 
-    const updatedBalance = await provider.getBalance(wallet.address);
-    console.log(chalk.bgBlue(`Sisa saldo ETH setelah ${i + 1} pengiriman: ${ethers.formatUnits(updatedBalance, 18)}`));
-    
-    // Tunggu beberapa detik sebelum pengiriman berikutnya
-    await delay(3000); // Tunggu 3 detik (sesuaikan sesuai kebutuhan)
+    if (!success) {
+      console.log(chalk.red('Gagal mengirim token setelah 3 kali percobaan. Melanjutkan...'));
+      await delay(100); 
+    }
   }
 
-  console.log("Semua transaksi selesai.");
+  const updatedBalance = await tokenContract.balanceOf(wallet.address);
+  console.log(chalk.bgBlue(`Sisa saldo: ${ethers.formatUnits(updatedBalance, network.decimals)} ${network.symbol}`));
+
   process.exit(0);
 }
 
-// Main function to start the process
+
 chooseNetwork();
