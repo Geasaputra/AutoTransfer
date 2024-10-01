@@ -13,27 +13,27 @@
 <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo.jpg" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/2in1.gif" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo1.jpg" alt="-" width="250" height="250"> 
 - - - - - - - - -
 
-install
+# install
 ```
 https://github.com/Wawanahayy/auto-transfer/tree/main
 ```
 
-go to config.js scroll down
-chang privatekey to your private key use 0X
+# go to config.js scroll down
+# chang privatekey to your private key use 0X
 
-run use native
+# run use native
 ```
 node eth.js
 ```
 
-run use contract or token
+# run use contract or token
 ```
 node erc20.js
 ```
 
 
 
-add new netwok use this
+# add new netwok use this
 ```
 {
   "newNetwork": {
