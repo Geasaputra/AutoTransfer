@@ -13,3 +13,20 @@
 <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo.jpg" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/2in1.gif" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo1.jpg" alt="-" width="250" height="250"> 
 - - - - - - - - -
 
+
+
+
+add new netwok use this
+```
+{
+  "newNetwork": {
+    "name": "Nama Jaringan Baru",
+    "rpcUrl": "https://url.rpc.jaringan.baru",
+    "chainId": 0, // Ganti dengan Chain ID yang sesuai
+    "symbol": "SYMBOL",
+    "explorer": "https://explorer.jaringan.baru",
+    "tokenContractAddress": "0xYourTokenContractAddress",
+    "decimals": 18 // Ganti dengan jumlah desimal yang sesuai
+  }
+}
+```
