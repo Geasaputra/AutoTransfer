@@ -18,6 +18,12 @@
 git clone https://github.com/Wawanahayy/auto-transfer/tree/main
 ```
 
+# install solana web3 & ethers 
+```
+npm install ethers @solana/web3.js
+```
+
+
 # go to config.js scroll down
 # chang privatekey to your private key use 0X
 
