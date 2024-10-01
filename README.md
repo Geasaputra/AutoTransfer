@@ -24,7 +24,7 @@ npm install ethers @solana/web3.js
 ```
 
 
-# go to config.js scroll down
+# go to config.json scroll down
 # chang privatekey to your private key use 0X
 
 # run use native
