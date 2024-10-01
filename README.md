@@ -27,7 +27,7 @@ npm install ethers @solana/web3.js
 # 3 go to config.json scroll down
 # chang privatekey to your private key use 0X
 
-# 2 two run
+# 4 two run
 
 run use native
 ```
@@ -40,7 +40,7 @@ node erc20.js
 
 
 
-# 6 add new netwok use this
+#  to add new new netwok use this
 ```
 {
   "newNetwork": {
