@@ -13,9 +13,9 @@
 <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo.jpg" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/2in1.gif" alt="-" width="250" height="250"> <img src="https://github.com/Wawanahayy/Autonomys-Network-/blob/main/photo1.jpg" alt="-" width="250" height="250"> 
 - - - - - - - - -
 
-# install
+# install or clone
 ```
-https://github.com/Wawanahayy/auto-transfer/tree/main
+git clone https://github.com/Wawanahayy/auto-transfer/tree/main
 ```
 
 # go to config.js scroll down
