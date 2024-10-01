@@ -120,7 +120,7 @@ function generateRandomAmount(min, max) {
 }
 
 function generateRandomAddress() {
-  return ethers.Wallet.createRandom().address; // Menghasilkan alamat random baru
+  return ethers.Wallet.createRandom().address; 
 }
 
 
