@@ -22,11 +22,11 @@ add new netwok use this
   "newNetwork": {
     "name": "Nama Jaringan Baru",
     "rpcUrl": "https://url.rpc.jaringan.baru",
-    "chainId": 0, // Ganti dengan Chain ID yang sesuai
+    "chainId": 0, 
     "symbol": "SYMBOL",
     "explorer": "https://explorer.jaringan.baru",
     "tokenContractAddress": "0xYourTokenContractAddress",
-    "decimals": 18 // Ganti dengan jumlah desimal yang sesuai
+    "decimals": 18 
   }
 }
 ```
